@@ -3,16 +3,19 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Mitta AI - MPSC Board</title>
+    <title>Mitta AI - Speaking Board</title>
     <style>
-        body { display: flex; justify-content: center; align-items: center; height: 100vh; background-color: #1abc9c; color: white; font-family: sans-serif; text-align: center; flex-direction: column; margin: 0; padding: 20px;}
-        h1 { font-size: 35px; margin-bottom: 10px; color: #fff; text-shadow: 2px 2px 4px rgba(0,0,0,0.3); }
+        body { display: flex; justify-content: center; align-items: center; height: 100vh; background-color: #8e44ad; color: white; font-family: sans-serif; text-align: center; flex-direction: column; margin: 0; padding: 20px;}
+        h1 { font-size: 35px; margin-bottom: 10px; color: #f39c12; text-shadow: 2px 2px 4px rgba(0,0,0,0.3); }
         #box { font-size: 38px; background: white; color: #2c3e50; padding: 30px; border-radius: 20px; box-shadow: 0px 10px 25px rgba(0,0,0,0.3); width: 85%; max-width: 800px; min-height: 150px; display: flex; align-items: center; justify-content: center; }
+        .speaker-icon { font-size: 50px; margin-bottom: 15px; animation: bounce 1.5s infinite; }
+        @keyframes bounce { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-10px); } }
     </style>
 </head>
 <body>
-    <h1>📖 MPSC / सरळ सेवा GS & GK लाईव्ह बोर्ड</h1>
-    <div id="box">रिमोटवरून प्रश्न येण्याची वाट पाहत आहे... ⏳</div>
+    <div class="speaker-icon">🗣️</div>
+    <h1>Mitta AI लाईव्ह क्लासरूम</h1>
+    <div id="box">नमस्कार बालमित्रांनो! मी Mitta AI आहे. रिमोटवरून बटन दाबा, मी बोलेन!</div>
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
@@ -32,12 +35,37 @@
         const db = getDatabase(app);
         const box = document.getElementById('box');
 
+        // मराठी लेडीज आवाजात बोलण्याचे फंक्शन
+        function speakMarathi(text) {
+            if ('speechSynthesis' in window) {
+                // आधीचे चाललेले बोलणे थांबवा
+                window.speechSynthesis.cancel();
+
+                let utterance = new SpeechSynthesisUtterance(text);
+                utterance.lang = 'mr-IN'; // मराठी भाषा सेट केली
+                utterance.rate = 0.9;  // बोलण्याचा वेग (थोडा स्पष्ट आणि शांत)
+                utterance.pitch = 1.2; // आवाजाचा उच्च सुर (स्त्री आवाजासाठी योग्य)
+
+                // उपलब्ध आवाजांमधून मराठी लेडीज आवाज शोधणे
+                let voices = window.speechSynthesis.getVoices();
+                let marathiVoice = voices.find(v => v.lang === 'mr-IN' || v.lang.includes('mr'));
+                if (marathiVoice) {
+                    utterance.voice = marathiVoice;
+                }
+
+                window.speechSynthesis.speak(utterance);
+            }
+        }
+
+        // फायरबेसवरून मेसेज आल्यावर बोर्डवर दाखवणे आणि बोलणे
         onValue(ref(db, 'action'), (snapshot) => {
             const data = snapshot.val();
             if (data && data.content) {
                 box.innerText = data.content;
+                speakMarathi(data.content); // इथे ती लेडीज आवाजात बोलेल!
             }
         });
     </script>
 </body>
 </html>
+
