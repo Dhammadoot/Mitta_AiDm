@@ -35,37 +35,54 @@
         const db = getDatabase(app);
         const box = document.getElementById('box');
 
+        // सर्व उपलब्ध आवाज आधीच लोड करून ठेवणे
+        let voices = [];
+        function loadVoices() {
+            voices = window.speechSynthesis.getVoices();
+        }
+        // जेव्हा ब्राउझरमध्ये आवाज लोड होतील, तेव्हा हे फंक्शन चालेल
+        window.speechSynthesis.onvoiceschanged = loadVoices;
+
         // मराठी लेडीज आवाजात बोलण्याचे फंक्शन
         function speakMarathi(text) {
             if ('speechSynthesis' in window) {
-                // आधीचे चाललेले बोलणे थांबवा
-                window.speechSynthesis.cancel();
+                window.speechSynthesis.cancel(); // आधीचे बोलणे थांबवा
 
                 let utterance = new SpeechSynthesisUtterance(text);
-                utterance.lang = 'mr-IN'; // मराठी भाषा सेट केली
-                utterance.rate = 0.9;  // बोलण्याचा वेग (थोडा स्पष्ट आणि शांत)
-                utterance.pitch = 1.2; // आवाजाचा उच्च सुर (स्त्री आवाजासाठी योग्य)
+                utterance.lang = 'mr-IN'; 
+                utterance.rate = 0.85;  // वेग थोडा अजून कमी केला जेणेकरून उच्चार स्पष्ट येतील
+                utterance.pitch = 1.2; 
 
-                // उपलब्ध आवाजांमधून मराठी लेडीज आवाज शोधणे
-                let voices = window.speechSynthesis.getVoices();
-                let marathiVoice = voices.find(v => v.lang === 'mr-IN' || v.lang.includes('mr'));
-                if (marathiVoice) {
-                    utterance.voice = marathiVoice;
+                if (voices.length === 0) {
+                    voices = window.speechSynthesis.getVoices();
+                }
+
+                // १. प्रथम मराठी आवाज शोधण्याचा प्रयत्न करणे
+                let bestVoice = voices.find(v => v.lang === 'mr-IN' || v.lang.includes('mr'));
+                
+                // २. जर मराठी आवाज नाही मिळाला, तर हिंदी आवाज वापरणे (कारण हिंदीचा उच्चारही मराठीला सूट होतो)
+                if (!bestVoice) {
+                    bestVoice = voices.find(v => v.lang === 'hi-IN' || v.lang.includes('hi'));
+                }
+
+                if (bestVoice) {
+                    utterance.voice = bestVoice;
                 }
 
                 window.speechSynthesis.speak(utterance);
             }
         }
 
-        // फायरबेसवरून मेसेज आल्यावर बोर्डवर दाखवणे आणि बोलणे
         onValue(ref(db, 'action'), (snapshot) => {
             const data = snapshot.val();
             if (data && data.content) {
                 box.innerText = data.content;
-                speakMarathi(data.content); // इथे ती लेडीज आवाजात बोलेल!
+                speakMarathi(data.content);
             }
         });
+
+        // पेज लोड झाल्यावर एकदा आवाज लोड करण्याचा प्रयत्न
+        setTimeout(loadVoices, 1000);
     </script>
 </body>
 </html>
-
