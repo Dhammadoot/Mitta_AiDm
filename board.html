@@ -1,1 +1,125 @@
+<!DOCTYPE html>
+<html lang="mr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>MITTA Digital Board</title>
+    
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
+        body { background-color: #0f172a; color: white; display: flex; flex-direction: column; height: 100vh; overflow: hidden; }
+        
+        header { background-color: #1e293b; padding: 15px 25px; display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #334155; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1); z-index: 10; }
+        .brand-title { font-size: 22px; font-weight: 800; color: #f8fafc; letter-spacing: 0.5px; }
+        .brand-highlight { color: #3b82f6; font-weight: 600; }
+        .live-status { background-color: #ef4444; color: white; padding: 4px 12px; border-radius: 20px; font-size: 12px; font-weight: bold; animation: blink 2s infinite; }
+        @keyframes blink { 0% { opacity: 1; } 50% { opacity: 0.7; } 100% { opacity: 1; } }
+
+        .board-container { display: flex; flex: 1; padding: 20px; gap: 20px; background: radial-gradient(circle at center, #1e293b 0%, #0f172a 100%); }
+
+        .presentation-area { flex: 3.5; background-color: #020617; border: 2px solid #334155; border-radius: 16px; display: flex; flex-direction: column; align-items: center; justify-content: center; position: relative; box-shadow: inset 0 0 80px rgba(0,0,0,0.8); transition: all 0.5s ease; }
+        .content-placeholder { text-align: center; color: #475569; }
+        
+        /* Added IDs for JavaScript to change these */
+        .content-icon { font-size: 90px; margin-bottom: 20px; color: #3b82f6; transition: all 0.3s ease; }
+        .content-text { font-size: 26px; font-weight: bold; color: #94a3b8; transition: all 0.3s ease; }
+
+        .ai-panel { flex: 1.5; background-color: #1e293b; border: 1px solid #334155; border-radius: 16px; padding: 25px; display: flex; flex-direction: column; align-items: center; box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.3); }
+        .avatar-container { width: 130px; height: 130px; background: linear-gradient(135deg, #1d4ed8, #3b82f6); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin-bottom: 20px; border: 4px solid #93c5fd; box-shadow: 0 0 30px rgba(59, 130, 246, 0.6); animation: ai-pulse 3s infinite ease-in-out; }
+        .avatar-text { font-size: 65px; font-weight: 900; color: white; font-family: sans-serif; }
+        @keyframes ai-pulse { 0% { box-shadow: 0 0 20px rgba(59, 130, 246, 0.4); border-color: #93c5fd; transform: scale(1); } 50% { box-shadow: 0 0 50px rgba(59, 130, 246, 0.8); border-color: #ffffff; transform: scale(1.02); } 100% { box-shadow: 0 0 20px rgba(59, 130, 246, 0.4); border-color: #93c5fd; transform: scale(1); } }
+        .ai-name { font-size: 26px; font-weight: 800; margin-bottom: 8px; letter-spacing: 1px; }
+        .ai-status { font-size: 15px; color: #4ade80; display: flex; align-items: center; gap: 8px; margin-bottom: 35px; background-color: rgba(74, 222, 128, 0.1); padding: 5px 15px; border-radius: 20px; border: 1px solid rgba(74, 222, 128, 0.3); }
+        .dot { width: 10px; height: 10px; background-color: #4ade80; border-radius: 50%; }
+
+        .live-captions { width: 100%; background-color: #0f172a; padding: 20px; border-radius: 12px; border: 1px solid #334155; flex: 1; position: relative; }
+        .caption-title { font-size: 13px; color: #94a3b8; text-transform: uppercase; margin-bottom: 15px; font-weight: bold; display: flex; align-items: center; gap: 8px; }
+        
+        /* Added ID for MITTA's Voice */
+        .caption-text { font-size: 20px; line-height: 1.6; color: #e2e8f0; font-style: italic; }
+        .cursor { display: inline-block; width: 3px; height: 18px; background-color: #3b82f6; margin-left: 5px; animation: blink 1s infinite; }
+    </style>
+</head>
+<body>
+
+    <header>
+        <div class="brand-title">
+            धम्मदूत मुळे सरांची AI Academy <span class="brand-highlight">| Co-Teacher Mitta AI</span>
+        </div>
+        <div class="live-status">LIVE CLASS</div>
+    </header>
+
+    <div class="board-container">
+        
+        <!-- Left: Presentation Screen -->
+        <div class="presentation-area">
+            <div class="content-placeholder">
+                <div class="content-icon" id="board-icon">✨</div>
+                <div class="content-text" id="board-text">डिजिटल 3D बोर्ड चालू आहे...</div>
+            </div>
+        </div>
+
+        <!-- Right: MITTA AI Panel -->
+        <div class="ai-panel">
+            <div class="avatar-container">
+                <span class="avatar-text">M</span>
+            </div>
+            <div class="ai-name">MITTA AI</div>
+            <div class="ai-status">
+                <span class="dot"></span> Active & Ready
+            </div>
+            
+            <div class="live-captions">
+                <div class="caption-title">
+                    <span>🎙️</span> MITTA Live Voice
+                </div>
+                <div class="caption-text" id="mitta-voice">
+                    "नमस्कार मुळे सर! मी तयार आहे. आज आपण विद्यार्थ्यांना कोणता विषय शिकवणार आहोत?"<span class="cursor"></span>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- 🧠 JavaScript: बोर्ड रिमोटचे सिग्नल पकडणार! -->
+    <script>
+        let lastCmdTime = null;
+
+        // बोर्ड दर अर्ध्या सेकंदाला चेक करेल की सरांनी रिमोटवरून काही नवीन कमांड दिली आहे का?
+        setInterval(() => {
+            let currentTime = localStorage.getItem('mitta_cmd_time');
+            
+            if (currentTime && currentTime !== lastCmdTime) {
+                lastCmdTime = currentTime; // नवीन कमांड ओळखली!
+                
+                // रिमोटवरून आलेली माहिती घेणे
+                let cmdName = localStorage.getItem('mitta_cmd_name');
+                let cmdIcon = localStorage.getItem('mitta_cmd_icon');
+                let cmdMessage = localStorage.getItem('mitta_cmd_message');
+
+                // १. स्क्रीनवर तो फोटो/मेसेज दाखवणे
+                document.getElementById('board-icon').innerText = cmdIcon;
+                document.getElementById('board-text').innerText = cmdMessage;
+
+                // २. MITTA च्या आवाजातील (Voice) वाक्य बदलणे
+                let mittaVoice = document.getElementById('mitta-voice');
+                
+                if(cmdName === '3D Model') {
+                    mittaVoice.innerHTML = '"मुलांनो, स्क्रीनवर लक्ष द्या! मुळे सरांनी तुमच्यासाठी एक सुंदर 3D मॉडेल उघडले आहे."<span class="cursor"></span>';
+                } 
+                else if(cmdName === 'नकाशा') {
+                    mittaVoice.innerHTML = '"चला मुलांनो, आता आपण नकाशाच्या मदतीने हा विषय समजून घेऊया!"<span class="cursor"></span>';
+                } 
+                else if(cmdName === 'Live Quiz') {
+                    mittaVoice.innerHTML = '"तयार आहात ना? तुमची टेस्ट आता सुरू होत आहे. All the best!"<span class="cursor"></span>';
+                } 
+                else if(cmdName === 'Board Clean') {
+                    mittaVoice.innerHTML = '"मी बोर्ड क्लीन केला आहे सर, तुम्ही पुढचा विषय सुरू करू शकता."<span class="cursor"></span>';
+                }
+            }
+        }, 500);
+    </script>
+
+</body>
+</html>
 
