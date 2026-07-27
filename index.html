@@ -2,120 +2,42 @@
 <html lang="mr">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>MITTA Teacher Remote</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mitta AI - Board</title>
     <style>
-        * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
-        body { background-color: #0f172a; color: #f8fafc; display: flex; flex-direction: column; height: 100vh; overflow: hidden; user-select: none; }
-        
-        header { background-color: #1e293b; padding: 15px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #334155; }
-        .brand { display: flex; align-items: center; gap: 12px; }
-        .logo-icon { width: 40px; height: 40px; background-color: #2563eb; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 24px; font-weight: 900; box-shadow: 0 0 15px rgba(37, 99, 235, 0.4); }
-        .title-area h1 { font-size: 18px; font-weight: bold; color: #ffffff; }
-        .status { font-size: 12px; color: #4ade80; display: flex; align-items: center; gap: 5px; }
-        .status-dot { width: 8px; height: 8px; background-color: #22c55e; border-radius: 50%; }
-        
-        /* New LIVE Badge */
-        .header-actions { display: flex; align-items: center; gap: 8px; }
-        .live-badge { background-color: #ef4444; color: white; padding: 4px 8px; border-radius: 12px; font-size: 11px; font-weight: bold; animation: blink 2s infinite; display: flex; align-items: center; gap: 4px;}
-        @keyframes blink { 0% { opacity: 1; } 50% { opacity: 0.6; } 100% { opacity: 1; } }
-        .lang-btn { background-color: #334155; color: #ffffff; border: 1px solid #475569; padding: 6px 10px; border-radius: 8px; font-size: 12px; font-weight: bold; }
-        
-        main { flex: 1; padding: 16px; overflow-y: auto; }
-        .section-title { font-size: 12px; color: #94a3b8; font-weight: bold; text-transform: uppercase; margin-bottom: 10px; letter-spacing: 0.5px; }
-        .stats-card { background-color: #1e293b; border: 1px solid #334155; border-radius: 16px; padding: 15px; margin-bottom: 20px; }
-        .stats-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
-        .stat-box { background-color: #0f172a; border: 1px solid #334155; border-radius: 12px; padding: 12px; text-align: center; }
-        .stat-label { font-size: 12px; color: #94a3b8; margin-bottom: 4px; }
-        .stat-value { font-size: 24px; font-weight: bold; color: #ffffff; }
-        .stat-value.green { color: #4ade80; }
-        
-        .commands-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
-        .cmd-btn { background-color: rgba(30, 41, 59, 0.8); border: 1px solid #334155; border-radius: 14px; padding: 16px 10px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 8px; color: #ffffff; font-size: 13px; font-weight: 600; cursor: pointer; transition: 0.2s;}
-        .cmd-btn:active { transform: scale(0.95); background-color: #2563eb; }
-        .cmd-icon { font-size: 24px; }
-        
-        footer { background-color: #1e293b; padding: 20px; border-top: 1px solid #334155; display: flex; flex-direction: column; align-items: center; justify-content: center; position: relative; }
-        .mic-btn { width: 70px; height: 70px; background-color: #2563eb; border: none; border-radius: 50%; color: white; font-size: 28px; display: flex; align-items: center; justify-content: center; box-shadow: 0 0 25px rgba(37, 99, 235, 0.6); margin-bottom: 8px; transition: 0.2s;}
-        .mic-btn:active { transform: scale(0.90); background-color: #1d4ed8; }
-        .mic-hint { font-size: 10px; color: #94a3b8; text-transform: uppercase; letter-spacing: 1px; }
+        body { display: flex; justify-content: center; align-items: center; height: 100vh; background-color: #2c3e50; color: white; font-family: sans-serif; text-align: center; flex-direction: column; margin: 0;}
+        h1 { font-size: 50px; color: #ecf0f1; }
+        #display { font-size: 45px; color: #f1c40f; margin-top: 30px; padding: 20px; border: 2px dashed #f1c40f; border-radius: 15px;}
     </style>
 </head>
 <body>
+    <h1>🖥️ Mitta AI स्मार्ट बोर्ड</h1>
+    <div id="display">रिमोटवरून कमांड येण्याची वाट पाहत आहे... ⏳</div>
 
-    <header>
-        <div class="brand">
-            <div class="logo-icon" style="font-family: sans-serif;">M</div>
-            <div class="title-area">
-                <h1>MITTA Remote</h1>
-                <div class="status"><span class="status-dot"></span> Connected</div>
-            </div>
-        </div>
-        <div class="header-actions">
-            <!-- MITTA AI LIVE Button -->
-            <div class="live-badge">🔴 LIVE</div>
-            <button class="lang-btn">🌐 मराठी</button>
-        </div>
-    </header>
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+        import { getDatabase, ref, onValue } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
 
-    <main>
-        <div class="section-title">Class Live Stats</div>
-        <div class="stats-card">
-            <div class="stats-grid">
-                <div class="stat-box">
-                    <div class="stat-label">विद्यार्थी उपस्थिती</div>
-                    <!-- रिअल टाईम डेटासाठी शून्य सेट केले आहे -->
-                    <div class="stat-value" id="student-count">०</div>
-                </div>
-                <div class="stat-box">
-                    <div class="stat-label">Attention Score</div>
-                    <!-- रिअल टाईम डेटासाठी शून्य सेट केले आहे -->
-                    <div class="stat-value green" id="attention-score">०%</div>
-                </div>
-            </div>
-        </div>
+        const firebaseConfig = {
+          apiKey: "AIzaSyAWQicAHRHSHzaS_AtwMXfsJQ0nZYCpM6c",
+          authDomain: "mitta-ai.firebaseapp.com",
+          databaseURL: "https://mitta-ai-default-rtdb.firebaseio.com",
+          projectId: "mitta-ai",
+          storageBucket: "mitta-ai.firebasestorage.app",
+          messagingSenderId: "628117773605",
+          appId: "1:628117773605:web:99c4c2df635a6990d70ecc"
+        };
 
-        <div class="section-title">Quick Commands</div>
-        <!-- ॲक्शन बटन्स -->
-        <div class="commands-grid">
-            <button class="cmd-btn" onclick="sendCommand('3D Model', '🧊', 'हृदयाचे 3D मॉडेल लोड होत आहे...')">
-                <span class="cmd-icon">🧊</span>
-                <span>3D Model दाखवा</span>
-            </button>
-            <button class="cmd-btn" onclick="sendCommand('नकाशा', '🗺️', 'जगाचा नकाशा लोड होत आहे...')">
-                <span class="cmd-icon">🗺️</span>
-                <span>नकाशा उघडा</span>
-            </button>
-            <button class="cmd-btn" onclick="sendCommand('Live Quiz', '❓', 'आजची टेस्ट सुरु झाली आहे! (प्रश्न १)')">
-                <span class="cmd-icon">❓</span>
-                <span>Live Quiz घ्या</span>
-            </button>
-            <button class="cmd-btn" onclick="sendCommand('Board Clean', '✨', 'बोर्ड पुसला गेला आहे. (क्लीन)')">
-                <span class="cmd-icon">🧹</span>
-                <span>Board Clean करा</span>
-            </button>
-        </div>
-    </main>
+        const app = initializeApp(firebaseConfig);
+        const db = getDatabase(app);
+        const displayDiv = document.getElementById('display');
 
-    <footer>
-        <button class="mic-btn" onclick="alert('MITTA ऐकत आहे... (Voice AI सिस्टीम लवकरच कनेक्ट होईल)')">🎙️</button>
-        <div class="mic-hint">Tap to speak to MITTA</div>
-    </footer>
-
-    <!-- 🧠 JavaScript (The Brain) -->
-    <script>
-        function sendCommand(cmdName, icon, message) {
-            // ही कमांड फोनच्या मेमरीमध्ये (LocalStorage) सेव्ह होते
-            localStorage.setItem('mitta_cmd_name', cmdName);
-            localStorage.setItem('mitta_cmd_icon', icon);
-            localStorage.setItem('mitta_cmd_message', message);
-            localStorage.setItem('mitta_cmd_time', Date.now()); 
-            
-            // शिक्षकांना मोबाईलवर कन्फर्मेशन
-            alert("✅ कमांड डिजिटल बोर्डवर पाठवली: " + cmdName);
-        }
+        onValue(ref(db, 'action'), (snapshot) => {
+            const data = snapshot.val();
+            if (data && data.command) {
+                displayDiv.innerText = "✨ " + data.command + " ✨";
+            }
+        });
     </script>
-
 </body>
 </html>
-
