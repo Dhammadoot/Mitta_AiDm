@@ -3,22 +3,39 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Mitta AI - MPSC Remote</title>
+    <title>Mitta AI - Voice Remote</title>
     <style>
         body { text-align: center; font-family: sans-serif; padding: 20px; background-color: #f4f4f9; }
-        h1 { color: #2c3e50; font-size: 24px; }
-        .btn { font-size: 18px; padding: 12px 20px; margin: 10px; border-radius: 10px; background: #27ae60; color: white; border: none; width: 90%; box-shadow: 2px 2px 5px gray; }
-        .btn-next { background: #2980b9; }
-        .btn-ans { background: #e67e22; }
+        h1 { color: #2c3e50; font-size: 26px; margin-bottom: 5px; }
+        p { color: #7f8c8d; font-size: 16px; margin-bottom: 25px; }
+        
+        .mic-btn { 
+            font-size: 50px; 
+            padding: 30px; 
+            border-radius: 50%; 
+            background: #e74c3c; 
+            color: white; 
+            border: none; 
+            box-shadow: 0px 10px 20px rgba(231, 76, 60, 0.4); 
+            cursor: pointer;
+            transition: 0.3s;
+            margin-bottom: 20px;
+        }
+        .mic-btn:active { background: #c0392b; transform: scale(0.95); }
+        
+        #status { font-size: 20px; font-weight: bold; color: #2980b9; min-height: 30px; margin-bottom: 20px;}
+        
+        .btn-test { font-size: 18px; padding: 12px 20px; border-radius: 10px; background: #27ae60; color: white; border: none; width: 90%; box-shadow: 2px 2px 5px gray; margin-top: 10px;}
     </style>
 </head>
 <body>
-    <h1>📚 Mitta AI स्पर्धा परीक्षा रिमोट</h1>
-    <p>विषय: GS आणि GK (MPSC / सरळ सेवा)</p>
+    <h1>🎤 Mitta AI व्हाईस रिमोट</h1>
+    <p>विद्यार्थ्यांचे प्रश्न ऐकण्यासाठी माईक दाबा</p>
     
-    <button class="btn" onclick="sendData('Q1', 'भारताचे पहिले सरन्यायाधीश कोण होते?')">१. पहिला प्रश्न पाठवा</button>
-    <button class="btn btn-ans" onclick="sendData('ANS', 'उत्तर: न्यायमूर्ती एच. जे. कनिया')">२. उत्तर दाखवा</button>
-    <button class="btn btn-next" onclick="sendData('Q2', 'महाराष्ट्राचे राज्यप्राणी कोणता आहे?')">३. पुढील प्रश्न पाठवा</button>
+    <button class="mic-btn" id="micBtn" onclick="startListening()">🎙️</button>
+    <div id="status">माईक बटणावर क्लिक करा आणि बोला...</div>
+
+    <button class="btn-test" onclick="sendData('TEXT', 'नमस्कार! मी Mitta AI आहे.')">टेस्ट मेसेज पाठवा</button>
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
@@ -37,14 +54,45 @@
         const app = initializeApp(firebaseConfig);
         const db = getDatabase(app);
 
+        // फायरबेसवर डेटा पाठवणारे फंक्शन
         window.sendData = function(type, text) {
             set(ref(db, 'action'), {
                 type: type,
                 content: text,
                 time: Date.now()
             });
-            alert("बोर्डवर पाठवले: " + text);
         };
+
+        // माईक आणि आवाज ओळखण्याची (Speech Recognition) सेटिंग
+        const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+        
+        if (SpeechRecognition) {
+            const recognition = new SpeechRecognition();
+            recognition.lang = 'mr-IN'; // मराठी भाषा सेट केली
+            recognition.continuous = false; // एकदा बोलून थांबले की रेकॉर्डिंग थांबेल
+
+            window.startListening = function() {
+                document.getElementById('status').innerText = "👂 ऐकत आहे... बोला!";
+                document.getElementById('status').style.color = "#d35400";
+                recognition.start();
+            };
+
+            recognition.onresult = function(event) {
+                const transcript = event.results[0][0].transcript;
+                document.getElementById('status').innerText = "तुम्ही बोललात: " + transcript;
+                document.getElementById('status').style.color = "#27ae60";
+                
+                // बोललेले वाक्य थेट बोर्डवर (फायरबेसवर) पाठवा
+                sendData('VOICE', transcript); 
+            };
+
+            recognition.onerror = function(event) {
+                document.getElementById('status').innerText = "आवाज ओळखता आला नाही. पुन्हा माईक दाबा.";
+                document.getElementById('status').style.color = "#c0392b";
+            };
+        } else {
+            document.getElementById('status').innerText = "तुमच्या ब्राउझरमध्ये माईक सपोर्ट नाही. कृपया Google Chrome वापरा.";
+        }
     </script>
 </body>
 </html>
