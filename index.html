@@ -3,15 +3,15 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Mitta AI - Smart Remote with Brain</title>
+    <title>Mitta AI - Advanced Remote</title>
     <style>
-        body { text-align: center; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; padding: 20px; background: linear-gradient(135deg, #f5f7fa, #c3cfe2); min-height: 100vh; margin: 0; box-sizing: border-box; }
-        h1 { color: #2c3e50; font-size: 26px; margin-bottom: 5px; }
-        p { color: #7f8c8d; font-size: 16px; margin-bottom: 25px; }
+        body { text-align: center; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; padding: 15px; background: linear-gradient(135deg, #f5f7fa, #c3cfe2); min-height: 100vh; margin: 0; box-sizing: border-box; }
+        h1 { color: #2c3e50; font-size: 24px; margin-bottom: 5px; }
+        p { color: #7f8c8d; font-size: 14px; margin-bottom: 20px; }
         
         .mic-btn { 
-            font-size: 60px; 
-            padding: 35px; 
+            font-size: 50px; 
+            padding: 30px; 
             border-radius: 50%; 
             background: linear-gradient(45deg, #ff416c, #ff4b2b); 
             color: white; 
@@ -19,43 +19,39 @@
             box-shadow: 0 10px 25px rgba(255, 65, 108, 0.4); 
             cursor: pointer;
             transition: 0.3s;
-            margin-bottom: 20px;
+            margin-bottom: 15px;
         }
         .mic-btn:active { transform: scale(0.95); }
         
         #status { 
-            font-size: 18px; 
+            font-size: 16px; 
             font-weight: bold; 
             color: #2c3e50; 
             background: white;
-            padding: 15px;
-            border-radius: 12px;
+            padding: 12px;
+            border-radius: 10px;
             box-shadow: 0 4px 10px rgba(0,0,0,0.05);
             max-width: 400px;
-            margin: 0 auto 20px auto;
+            margin: 0 auto 15px auto;
             word-wrap: break-word;
         }
 
-        .info-box {
-            background: rgba(255, 255, 255, 0.8);
-            padding: 12px;
-            border-radius: 10px;
-            font-size: 14px;
-            color: #555;
-            max-width: 400px;
-            margin: 0 auto;
-        }
+        .btn-grid { display: flex; flex-direction: column; gap: 10px; max-width: 400px; margin: 0 auto; }
+        .action-btn { font-size: 16px; padding: 12px; border-radius: 10px; background: #2980b9; color: white; border: none; box-shadow: 0 4px 10px rgba(0,0,0,0.1); cursor: pointer; }
+        .timer-btn { background: #e67e22; }
     </style>
 </head>
 <body>
-    <h1>🧠 Mitta AI बुद्धिवान रिमोट</h1>
-    <p>माईक दाबा आणि स्पर्धा परीक्षेचा कोणताही प्रश्न मराठीत विचार करा!</p>
+    <h1>🧠 Mitta AI प्रगत रिमोट</h1>
+    <p>माईक किंवा बटणांच्या मदतीने क्लास कन्ट्रोल करा</p>
     
     <button class="mic-btn" id="micBtn" onclick="startListening()">🎙️</button>
-    <div id="status">माईक बटणावर क्लिक करून बोला...</div>
+    <div id="status">माईक बटण दाबून बोला...</div>
 
-    <div class="info-box">
-        💡 <b>टिप:</b> प्रश्न विचारल्यानंतर AI थोडा वेळ विचार करून अचूक उत्तर बोर्डवर पाठवेल.
+    <div class="btn-grid">
+        <button class="action-btn timer-btn" onclick="triggerTimer(30)">⏱️ ३० सेकंदाचा टाईमर लावा</button>
+        <button class="action-btn" onclick="sendToBoard('महाराष्ट्राची राजधानी मुंबई आहे.')">🏛️ राजधानी प्रश्न पाठवा</button>
+        <button class="action-btn" onclick="sendToBoard('राष्ट्रपिता महात्मा गांधी आहेत.')">🇮🇳 राष्ट्रपिता प्रश्न पाठवा</button>
     </div>
 
     <script type="module">
@@ -75,73 +71,42 @@
         const app = initializeApp(firebaseConfig);
         const db = getDatabase(app);
 
-        // फायरबेसवर उत्तर पाठवणारे फंक्शन
-        function sendToBoard(text) {
+        window.sendToBoard = function(text) {
             set(ref(db, 'action'), {
-                type: 'AI_ANSWER',
                 content: text,
                 time: Date.now()
             });
+            document.getElementById('status').innerText = "✅ पाठवले: " + text;
         }
 
-        // फ्रि публиक AI API चा वापर करून प्रश्नाचे उत्तर शोधणे (Gemini/HuggingFace Proxy)
-        async function askAI(question) {
-            document.getElementById('status').innerText = "🤔 Mitta AI उत्तर शोधत आहे...";
-            
-            try {
-                // आपण इथे सार्वजनिक AI मॉडेलला प्रश्न विचारत आहोत
-                const response = `तुम्ही विचारलेला प्रश्न: "${question}" याचे अचूक उत्तर लवकरच बोर्डवर येईल.`; 
-                
-                // आपण थेट Google किंवा कस्टमाइज्ड सर्व्हरवरून उत्तर मिळवण्यासाठी खालील लॉजिक वापरू शकतो
-                // सध्यातरी खात्रीशीर उत्तरासाठी आपण एक स्मार्ट जनरेटर जोडत आहोत:
-                let aiReply = "";
-                
-                if(question.includes("राजधानी") && question.includes("महाराष्ट्र")) {
-                    aiReply = "महाराष्ट्राची राजधानी मुंबई आहे.";
-                } else if(question.includes("राष्ट्रपिता")) {
-                    aiReply = "महात्मा गांधी हे भारताचे राष्ट्रपिता आहेत.";
-                } else if(question.includes("सरन्यायाधीश")) {
-                    aiReply = "भारताचे पहिले सरन्यायाधीश न्यायमूर्ती एच. जे. कनिया हे होते.";
-                } else {
-                    // जर वेगळा प्रश्न असेल तर तो प्रश्न आणि त्याचे उत्तर तयार करणे
-                    aiReply = "छान प्रश्न! " + question + " याचे योग्य उत्तर विद्यार्थ्यांना समजावून सांगत आहे.";
-                }
-
-                document.getElementById('status').innerText = "✅ उत्तर बोर्डवर पाठवले!";
-                sendToBoard(aiReply);
-
-            } catch (error) {
-                document.getElementById('status').innerText = "⚠️ उत्तर शोधण्यात अडचण आली. पुन्हा प्रयत्न करा.";
-                sendToBoard("माफ करा, तांत्रिक अडचणीमुळे उत्तर मिळाले नाही.");
-            }
+        window.triggerTimer = function(sec) {
+            set(ref(db, 'timer'), {
+                time: sec,
+                timeKey: Date.now()
+            });
+            document.getElementById('status').innerText = "⏱️ ३० सेकंदाचा टाईमर चालू केला!";
         }
 
-        // माईक आणि व्हॉइस रेकग्निशन सेटिंग
         const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-        
         if (SpeechRecognition) {
             const recognition = new SpeechRecognition();
-            recognition.lang = 'mr-IN'; // मराठी भाषा
+            recognition.lang = 'mr-IN'; 
             recognition.continuous = false;
 
             window.startListening = function() {
-                document.getElementById('status').innerText = "👂 ऐकत आहे... प्रश्न सांगा!";
+                document.getElementById('status').innerText = "👂 ऐकत आहे... बोला!";
                 recognition.start();
             };
 
             recognition.onresult = function(event) {
                 const spokenText = event.results[0][0].transcript;
-                document.getElementById('status').innerText = "तुम्ही विचारले: " + spokenText;
-                
-                // बोललेला प्रश्न AI कडे पाठवणे
-                askAI(spokenText);
+                document.getElementById('status').innerText = "तुम्ही बोललात: " + spokenText;
+                sendToBoard(spokenText);
             };
 
-            recognition.onerror = function(event) {
-                document.getElementById('status').innerText = "आवाज स्पष्ट ऐकू आला नाही. पुन्हा माईक दाबा.";
+            recognition.onerror = function() {
+                document.getElementById('status').innerText = "आवाज स्पष्ट आला नाही. पुन्हा प्रयत्न करा.";
             };
-        } else {
-            document.getElementById('status').innerText = "तुमच्या ब्राउझरमध्ये माईक सपोर्ट नाही. कृपया Google Chrome वापरा.";
         }
     </script>
 </body>
