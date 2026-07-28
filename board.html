@@ -3,19 +3,135 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Mitta AI - Speaking Board</title>
+    <title>Mitta AI - Smart Board</title>
     <style>
-        body { display: flex; justify-content: center; align-items: center; height: 100vh; background-color: #8e44ad; color: white; font-family: sans-serif; text-align: center; flex-direction: column; margin: 0; padding: 20px;}
-        h1 { font-size: 35px; margin-bottom: 10px; color: #f39c12; text-shadow: 2px 2px 4px rgba(0,0,0,0.3); }
-        #box { font-size: 38px; background: white; color: #2c3e50; padding: 30px; border-radius: 20px; box-shadow: 0px 10px 25px rgba(0,0,0,0.3); width: 85%; max-width: 800px; min-height: 150px; display: flex; align-items: center; justify-content: center; }
-        .speaker-icon { font-size: 50px; margin-bottom: 15px; animation: bounce 1.5s infinite; }
-        @keyframes bounce { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-10px); } }
+        * { box-sizing: border-box; }
+        body { 
+            display: flex; 
+            justify-content: center; 
+            align-items: center; 
+            height: 100vh; 
+            background: linear-gradient(135deg, #0f2027, #203a43, #2c5364); 
+            color: white; 
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
+            text-align: center; 
+            flex-direction: column; 
+            margin: 0; 
+            padding: 20px;
+            overflow: hidden;
+        }
+
+        .avatar-container {
+            position: relative;
+            width: 110px;
+            height: 110px;
+            background: linear-gradient(45deg, #00dbde, #fc00ff);
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            box-shadow: 0 0 30px rgba(0, 219, 222, 0.6);
+            margin-bottom: 20px;
+            animation: pulseGlow 2s infinite alternate;
+        }
+
+        .avatar-icon { font-size: 55px; }
+
+        @keyframes pulseGlow {
+            0% { transform: scale(1); box-shadow: 0 0 20px rgba(0, 219, 222, 0.4); }
+            100% { transform: scale(1.08); box-shadow: 0 0 40px rgba(252, 0, 255, 0.8); }
+        }
+
+        h1 { 
+            font-size: 40px; 
+            margin: 0 0 10px 0; 
+            color: #00dbde; 
+            text-shadow: 0 2px 10px rgba(0,0,0,0.5); 
+            letter-spacing: 1px;
+        }
+
+        .tagline {
+            font-size: 18px;
+            color: #a4b0be;
+            margin-bottom: 30px;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+
+        #box { 
+            font-size: 38px; 
+            background: rgba(255, 255, 255, 0.1); 
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 2px solid rgba(255, 255, 255, 0.2);
+            color: #ffffff; 
+            padding: 40px; 
+            border-radius: 25px; 
+            box-shadow: 0 15px 35px rgba(0,0,0,0.5); 
+            width: 90%; 
+            max-width: 900px; 
+            min-height: 180px; 
+            display: flex; 
+            align-items: center; 
+            justify-content: center; 
+            line-height: 1.4;
+            animation: fadeIn 0.5s ease-in-out;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(15px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .sound-waves {
+            display: flex;
+            gap: 5px;
+            height: 25px;
+            align-items: center;
+            margin-top: 25px;
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+
+        .sound-waves.active { opacity: 1; }
+
+        .wave-bar {
+            width: 5px;
+            background: #00dbde;
+            border-radius: 5px;
+            animation: waveAnim 0.8s infinite ease-in-out alternate;
+        }
+
+        .wave-bar:nth-child(2) { animation-delay: 0.2s; background: #fc00ff; }
+        .wave-bar:nth-child(3) { animation-delay: 0.4s; background: #f1c40f; }
+        .wave-bar:nth-child(4) { animation-delay: 0.1s; background: #00dbde; }
+        .wave-bar:nth-child(5) { animation-delay: 0.3s; background: #fc00ff; }
+
+        @keyframes waveAnim {
+            0% { height: 5px; }
+            100% { height: 30px; }
+        }
     </style>
 </head>
 <body>
-    <div class="speaker-icon">🗣️</div>
-    <h1>Mitta AI लाईव्ह क्लासरूम</h1>
-    <div id="box">नमस्कार बालमित्रांनो! मी Mitta AI आहे. रिमोटवरून बटन दाबा, मी बोलेन!</div>
+
+    <div class="avatar-container">
+        <div class="avatar-icon">👩‍🏫</div>
+    </div>
+
+    <h1>Mitta AI स्मार्ट क्लासरूम</h1>
+    <div class="tagline">स्पर्धा परीक्षा लाईव्ह शिक्षण प्रणाली</div>
+
+    <!-- येथे "प्रश्न विचारा" हा बदल केला आहे -->
+    <div id="box">नमस्कार बालमित्रांनो! मी Mitta AI आहे. रिमोटमधील माईक दाबून प्रश्न विचारा, मी तयार आहे! ✨</div>
+
+    <div class="sound-waves" id="soundWaves">
+        <div class="wave-bar"></div>
+        <div class="wave-bar"></div>
+        <div class="wave-bar"></div>
+        <div class="wave-bar"></div>
+        <div class="wave-bar"></div>
+    </div>
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
@@ -34,40 +150,42 @@
         const app = initializeApp(firebaseConfig);
         const db = getDatabase(app);
         const box = document.getElementById('box');
+        const soundWaves = document.getElementById('soundWaves');
 
-        // सर्व उपलब्ध आवाज आधीच लोड करून ठेवणे
         let voices = [];
         function loadVoices() {
             voices = window.speechSynthesis.getVoices();
         }
-        // जेव्हा ब्राउझरमध्ये आवाज लोड होतील, तेव्हा हे फंक्शन चालेल
         window.speechSynthesis.onvoiceschanged = loadVoices;
 
-        // मराठी लेडीज आवाजात बोलण्याचे फंक्शन
         function speakMarathi(text) {
             if ('speechSynthesis' in window) {
-                window.speechSynthesis.cancel(); // आधीचे बोलणे थांबवा
+                window.speechSynthesis.cancel(); 
 
                 let utterance = new SpeechSynthesisUtterance(text);
                 utterance.lang = 'mr-IN'; 
-                utterance.rate = 0.85;  // वेग थोडा अजून कमी केला जेणेकरून उच्चार स्पष्ट येतील
+                utterance.rate = 0.85;  
                 utterance.pitch = 1.2; 
 
                 if (voices.length === 0) {
                     voices = window.speechSynthesis.getVoices();
                 }
 
-                // १. प्रथम मराठी आवाज शोधण्याचा प्रयत्न करणे
                 let bestVoice = voices.find(v => v.lang === 'mr-IN' || v.lang.includes('mr'));
-                
-                // २. जर मराठी आवाज नाही मिळाला, तर हिंदी आवाज वापरणे (कारण हिंदीचा उच्चारही मराठीला सूट होतो)
                 if (!bestVoice) {
                     bestVoice = voices.find(v => v.lang === 'hi-IN' || v.lang.includes('hi'));
                 }
-
                 if (bestVoice) {
                     utterance.voice = bestVoice;
                 }
+
+                utterance.onstart = function() {
+                    soundWaves.classList.add('active');
+                };
+
+                utterance.onend = function() {
+                    soundWaves.classList.remove('active');
+                };
 
                 window.speechSynthesis.speak(utterance);
             }
@@ -81,7 +199,6 @@
             }
         });
 
-        // पेज लोड झाल्यावर एकदा आवाज लोड करण्याचा प्रयत्न
         setTimeout(loadVoices, 1000);
     </script>
 </body>
